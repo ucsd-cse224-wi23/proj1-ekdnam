@@ -36,7 +36,7 @@ func readServerConfigs(configPath string) ServerConfigs {
 	return scs
 }
 
-func recordListener(ch chan<- []byte, host string, port string, maxMessageSize int) {
+func recordListener(ch chan<- []byte, host string, port string) {
 	service := host + ":" + port
 	listener, err := net.Listen("tcp", service)
 	if err != nil {
@@ -48,7 +48,7 @@ func recordListener(ch chan<- []byte, host string, port string, maxMessageSize i
 		if err != nil {
 			log.Println("CONNECTION ACCEPT ERROR", err)
 		}
-		go connectionHandler(nextConn, ch, maxMessageSize)
+		go connectionHandler(nextConn, ch, 100)
 	}
 }
 func connectionHandler(conn net.Conn, ch chan<- []byte, maxMessageSize int) {
@@ -177,11 +177,11 @@ func main() {
 
 	Host := scs.Servers[serverId].Host
 	Port := scs.Servers[serverId].Port
-	MaxMsgSize := 100
-	sleepTime := time.Duration(100)
+	MaxMsgSize := 512
+	sleepTime := time.Duration(50)
 	MaxRetries := 5
 
-	go recordListener(ch, Host, Port, MaxMsgSize)
+	go recordListener(ch, Host, Port)
 
 	time.Sleep(sleepTime * time.Millisecond)
 
@@ -258,6 +258,19 @@ func main() {
 
 	sort.Slice(myRecords, func(i, j int) bool { return string(myRecords[i][:10]) < string(myRecords[j][:10]) })
 
-	writeToFile(os.Args[3], myRecords)
+	// writeToFile(os.Args[3], myRecords)
+	writeFile, err := os.Create(os.Args[3])
+	if err != nil {
+		log.Println("ERROR WHILE OPENING WRITE-ONLY FILE IN WRITETOFILE()", err)
+	}
+
+	for _, record := range myRecords {
+		writeFile.Write(record)
+	}
+
+	err = writeFile.Close()
+	if err != nil {
+		log.Println("ERROR WHILE CLOSING WRITE-ONLY FILE IN WRITETOFILE()", err)
+	}
 
 }
