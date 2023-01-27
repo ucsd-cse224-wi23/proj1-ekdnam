@@ -90,7 +90,6 @@ func getTotalServers(configPath string) int {
 
 func readAndSend(serverId int, bitsRequired int, readPath string, scs ServerConfigs, sleepTime time.Duration, MaxRetries int) [][]byte {
 	records := [][]byte{}
-	// sendRecords := [][]byte{}
 	readFile, err := os.Open(readPath)
 	if err != nil {
 		fmt.Println("Error in opening file")
