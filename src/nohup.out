@@ -1,0 +1,24 @@
+Got the following server configs: {[{0 localhost 8080} {1 localhost 8081} {2 localhost 8082} {3 localhost 8083}]}
+Got the following server configs: {[{0 localhost 8080} {1 localhost 8081} {2 localhost 8082} {3 localhost 8083}]}
+Got the following server configs: {[{0 localhost 8080} {1 localhost 8081} {2 localhost 8082} {3 localhost 8083}]}
+Got the following server configs: {[{0 localhost 8080} {1 localhost 8081} {2 localhost 8082} {3 localhost 8083}]}
+Proto tcp Host localhost Port 8082 WorldSize 4 MaxMessageSize 100
+Proto tcp Host localhost Port 8081 WorldSize 4 MaxMessageSize 100
+Proto tcp Host localhost Port 8080 WorldSize 4 MaxMessageSize 100
+Proto tcp Host localhost Port 8083 WorldSize 4 MaxMessageSize 100
+Started server  2  at  localhost:8082
+Started server  0  at  localhost:8080
+Started server  1  at  localhost:8081
+Started server  3  at  localhost:8083
+Got the following server configs: {[{0 localhost 8080} {1 localhost 8081} {2 localhost 8082} {3 localhost 8083}]}
+Got the following server configs: {[{0 localhost 8080} {1 localhost 8081} {2 localhost 8082} {3 localhost 8083}]}
+Got the following server configs: {[{0 localhost 8080} {1 localhost 8081} {2 localhost 8082} {3 localhost 8083}]}
+Got the following server configs: {[{0 localhost 8080} {1 localhost 8081} {2 localhost 8082} {3 localhost 8083}]}
+Proto tcp Host localhost Port 8082 WorldSize 4 MaxMessageSize 100
+Proto tcp Host localhost Port 8083 WorldSize 4 MaxMessageSize 100
+Proto tcp Host localhost Port 8080 WorldSize 4 MaxMessageSize 100
+Proto tcp Host localhost Port 8081 WorldSize 4 MaxMessageSize 100
+Started server  3  at  localhost:8083
+Started server  0  at  localhost:8080
+Started server  1  at  localhost:8081
+Started server  2  at  localhost:8082
