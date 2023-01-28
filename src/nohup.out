@@ -1,115 +1,56 @@
 My server Id: 2
+My server Id: 0
+My server Id: 3
 My server Id: 1
-My server Id: 0
-My server Id: 3
 Got the following server configs: {[{0 localhost 8080} {1 localhost 8081} {2 localhost 8082} {3 localhost 8083}]}
 Got the following server configs: {[{0 localhost 8080} {1 localhost 8081} {2 localhost 8082} {3 localhost 8083}]}
 Got the following server configs: {[{0 localhost 8080} {1 localhost 8081} {2 localhost 8082} {3 localhost 8083}]}
 Got the following server configs: {[{0 localhost 8080} {1 localhost 8081} {2 localhost 8082} {3 localhost 8083}]}
-My server Id: 2
-My server Id: 1
-My server Id: 0
-My server Id: 3
-Got the following server configs: {[{0 localhost 8080} {1 localhost 8081} {2 localhost 8082} {3 localhost 8083}]}
-Got the following server configs: {[{0 localhost 8080} {1 localhost 8081} {2 localhost 8082} {3 localhost 8083}]}
-Got the following server configs: {[{0 localhost 8080} {1 localhost 8081} {2 localhost 8082} {3 localhost 8083}]}
-Got the following server configs: {[{0 localhost 8080} {1 localhost 8081} {2 localhost 8082} {3 localhost 8083}]}
-My server Id: 1
-My server Id: 2
+Data :  1048576
+Data :  1048576
+Data :  1048576
+Data :  1048576
 My server Id: 3
 My server Id: 0
-Got the following server configs: {[{0 localhost 8080} {1 localhost 8081} {2 localhost 8082} {3 localhost 8083}]}
-Got the following server configs: {[{0 localhost 8080} {1 localhost 8081} {2 localhost 8082} {3 localhost 8083}]}
-Got the following server configs: {[{0 localhost 8080} {1 localhost 8081} {2 localhost 8082} {3 localhost 8083}]}
-Got the following server configs: {[{0 localhost 8080} {1 localhost 8081} {2 localhost 8082} {3 localhost 8083}]}
-2023/01/27 11:48:38 netsort.go:70: DIALING ERROR IN SENDRECORD() dial tcp 127.0.0.1:8081: connect: connection refused
-2023/01/27 11:48:39 netsort.go:70: DIALING ERROR IN SENDRECORD() dial tcp 127.0.0.1:8081: connect: connection refused
-2023/01/27 11:48:39 netsort.go:70: DIALING ERROR IN SENDRECORD() dial tcp 127.0.0.1:8081: connect: connection refused
-2023/01/27 11:48:39 netsort.go:70: DIALING ERROR IN SENDRECORD() dial tcp 127.0.0.1:8081: connect: connection refused
-2023/01/27 11:48:39 netsort.go:70: DIALING ERROR IN SENDRECORD() dial tcp 127.0.0.1:8081: connect: connection refused
-panic: runtime error: invalid memory address or nil pointer dereference
-[signal SIGSEGV: segmentation violation code=0x2 addr=0x0 pc=0x1045ad0f8]
-
-goroutine 1 [running]:
-main.recordSender({0x14000126800?, 0x140000aa000?}, {0x14000126810?, 0x2?}, {0x140000ac000, 0x64, 0x80}, 0x32, 0x5)
-	/Users/ekdnam/Documents/WI23/224/hw/proj1-ekdnam/src/netsort.go:76 +0x138
-main.main()
-	/Users/ekdnam/Documents/WI23/224/hw/proj1-ekdnam/src/netsort.go:230 +0x724
-My server Id: 1
-My server Id: 0
-My server Id: 3
-My server Id: 2
-Got the following server configs: {[{0 localhost 8080} {1 localhost 8081} {2 localhost 8082} {3 localhost 8083}]}
-Got the following server configs: {[{0 localhost 8080} {1 localhost 8081} {2 localhost 8082} {3 localhost 8083}]}
-Got the following server configs: {[{0 localhost 8080} {1 localhost 8081} {2 localhost 8082} {3 localhost 8083}]}
-Got the following server configs: {[{0 localhost 8080} {1 localhost 8081} {2 localhost 8082} {3 localhost 8083}]}
-My server Id: 3
-My server Id: 2
-My server Id: 1
-My server Id: 0
-Got the following server configs: {[{0 localhost 8080} {1 localhost 8081} {2 localhost 8082} {3 localhost 8083}]}
-Got the following server configs: {[{0 localhost 8080} {1 localhost 8081} {2 localhost 8082} {3 localhost 8083}]}
-Got the following server configs: {[{0 localhost 8080} {1 localhost 8081} {2 localhost 8082} {3 localhost 8083}]}
-Got the following server configs: {[{0 localhost 8080} {1 localhost 8081} {2 localhost 8082} {3 localhost 8083}]}
-My server Id: 0
-My server Id: 3
 My server Id: 1
 My server Id: 2
 Got the following server configs: {[{0 localhost 8080} {1 localhost 8081} {2 localhost 8082} {3 localhost 8083}]}
 Got the following server configs: {[{0 localhost 8080} {1 localhost 8081} {2 localhost 8082} {3 localhost 8083}]}
 Got the following server configs: {[{0 localhost 8080} {1 localhost 8081} {2 localhost 8082} {3 localhost 8083}]}
 Got the following server configs: {[{0 localhost 8080} {1 localhost 8081} {2 localhost 8082} {3 localhost 8083}]}
-2023/01/27 11:49:01 netsort.go:70: DIALING ERROR IN SENDRECORD() dial tcp 127.0.0.1:8082: connect: connection refused
-2023/01/27 11:49:01 netsort.go:70: DIALING ERROR IN SENDRECORD() dial tcp 127.0.0.1:8082: connect: connection refused
-2023/01/27 11:49:01 netsort.go:70: DIALING ERROR IN SENDRECORD() dial tcp 127.0.0.1:8082: connect: connection refused
-2023/01/27 11:49:01 netsort.go:70: DIALING ERROR IN SENDRECORD() dial tcp 127.0.0.1:8082: connect: connection refused
-2023/01/27 11:49:01 netsort.go:70: DIALING ERROR IN SENDRECORD() dial tcp 127.0.0.1:8082: connect: connection refused
-panic: runtime error: invalid memory address or nil pointer dereference
-[signal SIGSEGV: segmentation violation code=0x2 addr=0x0 pc=0x10445d0f8]
-
-goroutine 1 [running]:
-main.recordSender({0x1400001a900?, 0x14000208040?}, {0x1400001a910?, 0x2?}, {0x1400023e000, 0x64, 0x80}, 0x32, 0x5)
-	/Users/ekdnam/Documents/WI23/224/hw/proj1-ekdnam/src/netsort.go:76 +0x138
-main.main()
-	/Users/ekdnam/Documents/WI23/224/hw/proj1-ekdnam/src/netsort.go:230 +0x724
-My server Id: 0
+Data :  10
+Data :  10
+Data Sent from Server  3
+Data Sent from Server  2
+Data :  10
+Data :  10
+Data Sent from Server  1
+Data Sent from Server  0
+Val :  6 0
+Val :  17 1
+Val :  10 2
+Val :  7 3
 My server Id: 1
 My server Id: 2
 My server Id: 3
-Got the following server configs: {[{0 localhost 8080} {1 localhost 8081} {2 localhost 8082} {3 localhost 8083}]}
-Got the following server configs: {[{0 localhost 8080} {1 localhost 8081} {2 localhost 8082} {3 localhost 8083}]}
-Got the following server configs: {[{0 localhost 8080} {1 localhost 8081} {2 localhost 8082} {3 localhost 8083}]}
-Got the following server configs: {[{0 localhost 8080} {1 localhost 8081} {2 localhost 8082} {3 localhost 8083}]}
-My server Id: 3
-My server Id: 0
-My server Id: 2
-My server Id: 1
-Got the following server configs: {[{0 localhost 8080} {1 localhost 8081} {2 localhost 8082} {3 localhost 8083}]}
-Got the following server configs: {[{0 localhost 8080} {1 localhost 8081} {2 localhost 8082} {3 localhost 8083}]}
-Got the following server configs: {[{0 localhost 8080} {1 localhost 8081} {2 localhost 8082} {3 localhost 8083}]}
-Got the following server configs: {[{0 localhost 8080} {1 localhost 8081} {2 localhost 8082} {3 localhost 8083}]}
-2023/01/27 11:49:41 netsort.go:79: WRITING ERROR IN SENDRECORD() write tcp 127.0.0.1:63969->127.0.0.1:8082: write: broken pipe
-My server Id: 1
-My server Id: 2
-My server Id: 0
-My server Id: 3
-Got the following server configs: {[{0 localhost 8080} {1 localhost 8081} {2 localhost 8082} {3 localhost 8083}]}
-Got the following server configs: {[{0 localhost 8080} {1 localhost 8081} {2 localhost 8082} {3 localhost 8083}]}
-Got the following server configs: {[{0 localhost 8080} {1 localhost 8081} {2 localhost 8082} {3 localhost 8083}]}
-Got the following server configs: {[{0 localhost 8080} {1 localhost 8081} {2 localhost 8082} {3 localhost 8083}]}
-My server Id: 3
-My server Id: 1
-My server Id: 2
 My server Id: 0
 Got the following server configs: {[{0 localhost 8080} {1 localhost 8081} {2 localhost 8082} {3 localhost 8083}]}
 Got the following server configs: {[{0 localhost 8080} {1 localhost 8081} {2 localhost 8082} {3 localhost 8083}]}
 Got the following server configs: {[{0 localhost 8080} {1 localhost 8081} {2 localhost 8082} {3 localhost 8083}]}
 Got the following server configs: {[{0 localhost 8080} {1 localhost 8081} {2 localhost 8082} {3 localhost 8083}]}
-My server Id: 0
+Data :  1048576
+Data :  1048576
+Data :  1048576
+Data :  1048576
 My server Id: 3
-My server Id: 2
 My server Id: 1
+My server Id: 0
+My server Id: 2
 Got the following server configs: {[{0 localhost 8080} {1 localhost 8081} {2 localhost 8082} {3 localhost 8083}]}
 Got the following server configs: {[{0 localhost 8080} {1 localhost 8081} {2 localhost 8082} {3 localhost 8083}]}
 Got the following server configs: {[{0 localhost 8080} {1 localhost 8081} {2 localhost 8082} {3 localhost 8083}]}
 Got the following server configs: {[{0 localhost 8080} {1 localhost 8081} {2 localhost 8082} {3 localhost 8083}]}
+2023/01/27 17:41:26 netsort.go:55: Unable to listen listen tcp 127.0.0.1:8082: bind: address already in use
+2023/01/27 17:41:26 netsort.go:55: Unable to listen listen tcp 127.0.0.1:8080: bind: address already in use
+2023/01/27 17:41:26 netsort.go:55: Unable to listen listen tcp 127.0.0.1:8083: bind: address already in use
+2023/01/27 17:41:26 netsort.go:55: Unable to listen listen tcp 127.0.0.1:8081: bind: address already in use

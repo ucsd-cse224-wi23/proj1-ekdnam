@@ -23,6 +23,12 @@ type ServerConfigs struct {
 	} `yaml:"servers"`
 }
 
+const (
+	Proto      = "tcp"
+	MaxMsgSize = 100
+	SleepTime  = time.Duration(100) * time.Millisecond
+)
+
 func readServerConfigs(configPath string) ServerConfigs {
 	f, err := ioutil.ReadFile(configPath)
 
@@ -31,127 +37,53 @@ func readServerConfigs(configPath string) ServerConfigs {
 	}
 
 	scs := ServerConfigs{}
-	_ = yaml.Unmarshal(f, &scs)
+	err = yaml.Unmarshal(f, &scs)
 
 	return scs
 }
 
-func recordListener(ch chan<- []byte, host string, port string) {
-	service := host + ":" + port
-	listener, err := net.Listen("tcp", service)
+func sendRecord(conn net.Conn, record []byte) {
+	// writing record to connection
+	_, err := conn.Write(record)
 	if err != nil {
-		log.Println("NET.LISTEN ERROR", err)
+		log.Fatalln("Error while sending record ", err)
+	}
+}
+
+func startServer(Host string, Port string, ch chan<- []byte) {
+	service := Host + ":" + Port
+	// starting server by listening using Proto TCP
+	listener, err := net.Listen(Proto, service)
+	if err != nil {
+		fmt.Println("Error while listening")
 	}
 	defer listener.Close()
 	for {
-		nextConn, err := listener.Accept()
+		// accepting on listener
+		conn, err := listener.Accept()
 		if err != nil {
-			log.Println("CONNECTION ACCEPT ERROR", err)
+			fmt.Println("Error occurred while accepting connection ", err)
 		}
-		go connectionHandler(nextConn, ch, 100)
-	}
-}
-func connectionHandler(conn net.Conn, ch chan<- []byte, maxMessageSize int) {
-	record := make([]byte, maxMessageSize)
-	n, err := conn.Read(record)
-	if err != nil {
-		log.Print("Error reading bytes from connection ", err)
-	}
-	record = record[:n]
-	ch <- record
-}
-func recordSender(host string, port string, record []byte, sleepTime time.Duration, maxRetries int) {
-	var err error
-	var clientConnection net.Conn
-	service := host + ":" + port
-	for i := 0; i < maxRetries; i++ {
-		clientConnection, err = net.Dial("tcp", service)
-		if err != nil {
-			log.Println("DIALING ERROR IN SENDRECORD()", err)
-			time.Sleep(sleepTime * time.Millisecond)
-		} else {
-			break
-		}
-	}
-	defer clientConnection.Close()
-
-	_, err = clientConnection.Write(record)
-	if err != nil {
-		log.Println("WRITING ERROR IN SENDRECORD()", err)
+		go handleConnection(conn, ch)
 	}
 }
 
-func getTotalServers(configPath string) int {
-	scs := readServerConfigs(configPath)
-	return len(scs.Servers)
-}
-
-func readAndSend(serverId int, bitsRequired int, readPath string, scs ServerConfigs, sleepTime time.Duration, MaxRetries int) [][]byte {
-	records := [][]byte{}
-	readFile, err := os.Open(readPath)
-	if err != nil {
-		fmt.Println("Error in opening file")
-	}
+func handleConnection(conn net.Conn, ch chan<- []byte) {
 	for {
 		record := make([]byte, 100)
-		_, err := readFile.Read(record)
+		// reading from connection into record
+		length, err := conn.Read(record)
 		if err != nil {
 			if err == io.EOF {
-				break
+				fmt.Println("All data has been read, exiting ", err)
+				return
 			}
-			log.Println("File read error in for loop ", err)
+			fmt.Println("Error occurred ", err)
 		}
-		serverIdToWhichDataBelongs := int(record[0] >> (8 - bitsRequired))
-		if serverIdToWhichDataBelongs == serverId {
-			records = append(records, record)
-			continue
-		}
-		for _, server := range scs.Servers {
-			if serverIdToWhichDataBelongs == server.ServerId {
-				recordSender(server.Host, server.Port, record, sleepTime, MaxRetries)
-				break
-			}
-		}
-	}
-	readFile.Close()
-
-	return records
-}
-
-// func receiveRecords(ch chan []byte, numberOfServers int, streamComplete []byte) [][]byte {
-// 	records := [][]byte{}
-// 	recvDataServers := 0
-// 	for {
-// 		if recvDataServers == numberOfServers-1 {
-// 			break
-// 		}
-// 		msg := <-ch
-// 		breakFlag := true
-
-// 		breakFlag = checkIfEnd(msg, streamComplete)
-
-// 		if breakFlag {
-// 			recvDataServers += 1
-// 		} else {
-// 			records = append(records, msg)
-// 		}
-// 	}
-// 	return records
-// }
-
-func writeToFile(writePath string, records [][]byte) {
-	writeFile, err := os.Create(writePath)
-	if err != nil {
-		log.Println("ERROR WHILE OPENING WRITE-ONLY FILE IN WRITETOFILE()", err)
-	}
-
-	for _, record := range records {
-		writeFile.Write(record)
-	}
-
-	err = writeFile.Close()
-	if err != nil {
-		log.Println("ERROR WHILE CLOSING WRITE-ONLY FILE IN WRITETOFILE()", err)
+		// read first length bytes of record into record
+		record = record[:length]
+		// read record into channel
+		ch <- record
 	}
 }
 
@@ -173,104 +105,114 @@ func main() {
 	scs := readServerConfigs(os.Args[4])
 	fmt.Println("Got the following server configs:", scs)
 
-	ch := make(chan []byte)
+	/*
+		Implement Distributed Sort
+	*/
+	connectionMap := make(map[int]net.Conn)
 
 	Host := scs.Servers[serverId].Host
 	Port := scs.Servers[serverId].Port
-	MaxMsgSize := 512
-	sleepTime := time.Duration(50)
-	MaxRetries := 5
 
-	go recordListener(ch, Host, Port)
+	numberOfServers := len(scs.Servers)
+	bits := int(math.Log2(float64(numberOfServers)))
 
-	time.Sleep(sleepTime * time.Millisecond)
+	ch := make(chan []byte)
+
+	// start server
+	go startServer(Host, Port, ch)
+	time.Sleep(SleepTime)
+
+	// setting up connection to all servers
+	for i := 0; i < numberOfServers; i++ {
+		for {
+			clientHost := scs.Servers[i].Host
+			clientPort := scs.Servers[i].Port
+			service := clientHost + ":" + clientPort
+			connection, err := net.Dial(Proto, service)
+			if err != nil {
+				fmt.Println("Error while setting up connection ", err)
+				time.Sleep(SleepTime)
+				continue
+			} else {
+				connectionMap[i] = connection
+				break
+			}
+		}
+	}
 
 	readPath := os.Args[2]
-
+	readFile, err := os.ReadFile(readPath)
 	if err != nil {
-		log.Println("Error opening file: ", err)
+		fmt.Println("Error while reading file ", err)
 	}
 
-	numberOfServers := getTotalServers(os.Args[4])
-	bitsRequired := int(math.Log2(float64(numberOfServers)))
+	dataBucket := make(map[int][]byte)
 
-	myRecords := [][]byte{}
-	readFile, err := os.Open(readPath)
-	if err != nil {
-		fmt.Println("Error in opening file")
-	}
+	i := 0
+
 	for {
-		record := make([]byte, 100)
-		_, err := readFile.Read(record)
-		if err != nil {
-			if err == io.EOF {
-				break
-			}
-			log.Println("File read error in for loop ", err)
-		}
-		serverIdToWhichDataBelongs := int(record[0] >> (8 - bitsRequired))
-		if serverIdToWhichDataBelongs == serverId {
-			myRecords = append(myRecords, record)
-			continue
-		}
-		for _, server := range scs.Servers {
-			if serverIdToWhichDataBelongs == server.ServerId {
-				recordSender(server.Host, server.Port, record, sleepTime, MaxRetries)
-				break
-			}
-		}
-	}
-	readFile.Close()
-
-	streamComplete := []byte{}
-	for i := 0; i < MaxMsgSize; i++ {
-		streamComplete = append(streamComplete, 0)
-	}
-	for _, server := range scs.Servers {
-		recordSender(server.Host, server.Port, streamComplete, sleepTime, MaxRetries)
-	}
-
-	// recdRecords := receiveRecords(ch, numberOfServers, streamComplete)
-	// recdRecords := [][]byte{}
-	recvDataServers := 0
-	for {
-		if recvDataServers == numberOfServers-1 {
+		if !(i < len(readFile)) {
 			break
 		}
-		msg := <-ch
-		breakFlag := true
+		data := readFile[i : i+100]
+		i += 100
+		sendServerId := int(data[0] >> (8 - bits))
+		for _, b := range data {
+			dataBucket[sendServerId] = append(dataBucket[sendServerId], b)
+		}
+	}
 
-		for _, _byte := range msg {
-			if _byte != 0 {
-				breakFlag = false
+	for id := 0; id < numberOfServers; id++ {
+		for i := 0; i < 100; i++ {
+			dataBucket[id] = append(dataBucket[id], byte(0))
+		}
+	}
+
+	for i := 0; i < numberOfServers; i++ {
+		_, err := connectionMap[i].Write(dataBucket[i])
+		if err != nil {
+			fmt.Println("Error while writing data to connection")
+		}
+	}
+
+	var records [][]byte
+	serversCompleted := 0
+
+	for {
+		if serversCompleted == numberOfServers {
+			break
+		}
+		clientDataProcessing := true
+		record := <-ch
+		for _, byte := range record {
+			if byte != 0 {
+				clientDataProcessing = false
 				break
 			}
 		}
-
-		if breakFlag {
-			recvDataServers += 1
+		if clientDataProcessing {
+			serversCompleted += 1
+			continue
 		} else {
-			myRecords = append(myRecords, msg)
+			records = append(records, record)
 		}
 	}
 
-	// myRecords = append(myRecords, recdRecords...)
+	sort.Slice(records, func(i, j int) bool {
+		return string(records[i][:10]) < string(records[j][:10])
+	})
 
-	sort.Slice(myRecords, func(i, j int) bool { return string(myRecords[i][:10]) < string(myRecords[j][:10]) })
-
-	// writeToFile(os.Args[3], myRecords)
-	writeFile, err := os.Create(os.Args[3])
+	writePath := os.Args[3]
+	writeFile, err := os.Create(writePath)
 	if err != nil {
-		log.Println("ERROR WHILE OPENING WRITE-ONLY FILE IN WRITETOFILE()", err)
+		fmt.Println("Error occurred while opening write file")
 	}
-
-	for _, record := range myRecords {
+	for _, record := range records {
 		writeFile.Write(record)
 	}
-
-	err = writeFile.Close()
-	if err != nil {
-		log.Println("ERROR WHILE CLOSING WRITE-ONLY FILE IN WRITETOFILE()", err)
+	writeFile.Close()
+	for _, v := range connectionMap {
+		v.Close()
 	}
 
 }
