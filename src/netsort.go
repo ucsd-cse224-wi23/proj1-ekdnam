@@ -87,6 +87,78 @@ func handleConnection(conn net.Conn, ch chan<- []byte) {
 	}
 }
 
+func binningData(numberOfServers int, readFile []byte, bits int) map[int][]byte {
+	dataBucket := make(map[int][]byte)
+
+	i := 0
+
+	for {
+		if !(i < len(readFile)) {
+			break
+		}
+		data := readFile[i : i+100]
+		i += 100
+		sendServerId := int(data[0] >> (8 - bits))
+		for _, b := range data {
+			dataBucket[sendServerId] = append(dataBucket[sendServerId], b)
+		}
+	}
+
+	for id := 0; id < numberOfServers; id++ {
+		for i := 0; i < 100; i++ {
+			dataBucket[id] = append(dataBucket[id], byte(0))
+		}
+	}
+
+	return dataBucket
+}
+
+func receiveRecords(ch chan []byte, numberOfServers int) [][]byte {
+	var records [][]byte
+	serversCompleted := 0
+
+	for {
+		if serversCompleted == numberOfServers {
+			break
+		}
+		clientDataProcessing := true
+		record := <-ch
+		for _, byte := range record {
+			if byte != 0 {
+				clientDataProcessing = false
+				break
+			}
+		}
+		if clientDataProcessing {
+			serversCompleted += 1
+			continue
+		} else {
+			records = append(records, record)
+		}
+	}
+	return records
+}
+
+func createConnectionMap(connectionMap map[int]net.Conn, scs ServerConfigs, numberOfServers int) map[int]net.Conn {
+	for i := 0; i < numberOfServers; i++ {
+		for {
+			clientHost := scs.Servers[i].Host
+			clientPort := scs.Servers[i].Port
+			service := clientHost + ":" + clientPort
+			connection, err := net.Dial(Proto, service)
+			if err != nil {
+				fmt.Println("Error while setting up connection ", err)
+				time.Sleep(SleepTime)
+				continue
+			} else {
+				connectionMap[i] = connection
+				break
+			}
+		}
+	}
+	return connectionMap
+}
+
 func main() {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 
@@ -123,22 +195,7 @@ func main() {
 	time.Sleep(SleepTime)
 
 	// setting up connection to all servers
-	for i := 0; i < numberOfServers; i++ {
-		for {
-			clientHost := scs.Servers[i].Host
-			clientPort := scs.Servers[i].Port
-			service := clientHost + ":" + clientPort
-			connection, err := net.Dial(Proto, service)
-			if err != nil {
-				fmt.Println("Error while setting up connection ", err)
-				time.Sleep(SleepTime)
-				continue
-			} else {
-				connectionMap[i] = connection
-				break
-			}
-		}
-	}
+	connectionMap = createConnectionMap(connectionMap, scs, numberOfServers)
 
 	readPath := os.Args[2]
 	readFile, err := os.ReadFile(readPath)
@@ -146,27 +203,7 @@ func main() {
 		fmt.Println("Error while reading file ", err)
 	}
 
-	dataBucket := make(map[int][]byte)
-
-	i := 0
-
-	for {
-		if !(i < len(readFile)) {
-			break
-		}
-		data := readFile[i : i+100]
-		i += 100
-		sendServerId := int(data[0] >> (8 - bits))
-		for _, b := range data {
-			dataBucket[sendServerId] = append(dataBucket[sendServerId], b)
-		}
-	}
-
-	for id := 0; id < numberOfServers; id++ {
-		for i := 0; i < 100; i++ {
-			dataBucket[id] = append(dataBucket[id], byte(0))
-		}
-	}
+	dataBucket := binningData(numberOfServers, readFile, bits)
 
 	for i := 0; i < numberOfServers; i++ {
 		_, err := connectionMap[i].Write(dataBucket[i])
@@ -175,28 +212,7 @@ func main() {
 		}
 	}
 
-	var records [][]byte
-	serversCompleted := 0
-
-	for {
-		if serversCompleted == numberOfServers {
-			break
-		}
-		clientDataProcessing := true
-		record := <-ch
-		for _, byte := range record {
-			if byte != 0 {
-				clientDataProcessing = false
-				break
-			}
-		}
-		if clientDataProcessing {
-			serversCompleted += 1
-			continue
-		} else {
-			records = append(records, record)
-		}
-	}
+	records := receiveRecords(ch, numberOfServers)
 
 	sort.Slice(records, func(i, j int) bool {
 		return string(records[i][:10]) < string(records[j][:10])
